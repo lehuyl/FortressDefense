@@ -1,7 +1,7 @@
 package GameLogic;
 
 /**
- *
+ *  Class implementaiton of the Fortress Class.
  */
 public class Fortress {
 
