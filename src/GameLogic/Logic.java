@@ -7,10 +7,17 @@ import java.util.List;
  * Class implementation for the Logic Class.
  */
 public class Logic {
+    private final int ASCII_A_LOWER = 97;
+    private final int ASCII_J_LOWER = 106;
+    private final int ASCII_0 = 48;
+    private final int ASCII_1 = 49;
+    private final int ASCII_9 = 57;
+    private final int SIDE_LENGTH = 10;
+
     private List<Tank> tankList;
     private Fortress fortress;
     private int[][] board;//-1 miss, 0 untouched, 1 hit
-    //private boolean[][] tankBoard; // not sure if we need this to be honest
+    private char[][] tankBoard;
 
     /**
      *  Constructor for the Logic Class.
@@ -19,16 +26,19 @@ public class Logic {
     public Logic(int tankNum){
         assert tankNum > 0;//TODO: take this out later
         int fortressHealth = 1500;
-        int sideLength = 10;
 
         this.fortress = new Fortress(fortressHealth);
-        this.board = new int[sideLength][sideLength];
-        //this.tankBoard = new boolean[sideLength][sideLength];
+        this.board = new int[SIDE_LENGTH][SIDE_LENGTH];
+        this.tankBoard = new char[SIDE_LENGTH][SIDE_LENGTH];
         this.tankList = new ArrayList<>();
 
+        for(int i = 0; i < SIDE_LENGTH; i++){
+            for(int j = 0; j < SIDE_LENGTH; j++){
+                this.tankBoard[i][j] = '.';
+            }
+        }
+
         randomize(tankNum);
-        //i want to initialize the tanklist
-        //i want to initialize the board
     }
 
     /**
@@ -73,7 +83,7 @@ public class Logic {
      *  Returns the damage each tank can do.
      * @return Integer array showing the damage of each tank.
      */
-    public int[] getTanksDamage(){
+    private int[] getTanksDamage(){
         int[] tanksDamageArray = new int[tankList.size()];
         for(int i = 0; i < tankList.size(); i++){
             tanksDamageArray[i] = tankList.get(i).getPower();
@@ -81,13 +91,30 @@ public class Logic {
         return tanksDamageArray;
     }
 
-//    /**
-//     *  Returns where there is and isnt a tank in the board.
-//     * @return 2D Boolean Array showing where the tanks are.
-//     */
-//    public boolean[][] getTankBoardState(){
-//        return tankBoard;
-//    }
+    /**
+     * Returns the damage of the active tanks on the field.
+     * @return Integer list for the damage of all active tanks.
+     */
+    private List<Integer> getTanksDamageForUI(){
+        List<Integer> tanksDamage = new ArrayList<>();
+        for(Tank currentTank : tankList){
+            int currentDamage = currentTank.getPower();
+
+            if(currentDamage > 0){
+                tanksDamage.add(currentDamage);
+            }
+        }
+
+        return tanksDamage;
+    }
+
+    /**
+     *  Returns where there is and isnt a tank in the board.
+     * @return 2D Boolean Array showing where the tanks are.
+     */
+    public char[][] getTankBoardState(){
+        return tankBoard;
+    }
 
     /**
      *  Returns the list of Tanks found on the board.
@@ -124,9 +151,9 @@ public class Logic {
 
     /**
      * Shoots the Fortress with the damage each tank is capable of.
-     * @param tanksDamage Must not be null. Integer array with the damage each tank is capable of.
      */
-    public void shootFortress(int[] tanksDamage){
+    public void shootFortress(){
+        int [] tanksDamage = getTanksDamage();
         for(int currentDamage : tanksDamage){
             this.fortress.decreaseHealth(currentDamage);
         }
@@ -137,7 +164,10 @@ public class Logic {
      * @param tankNum
      */
     private void randomize(int tankNum){
-
+         /*
+         Here, we will try to randomize the tanks depending on how many tanks one is asked to put.
+         We will be updating the tankList and will instantiate the tanks in them. We will also update the tankBoard here.
+          */
     }
 
     /**
@@ -147,16 +177,11 @@ public class Logic {
      */
     private boolean isValidCoordinate(String coordinate){
         assert !(coordinate.contains(" "));//TODO: take this out later, not sure if we have to handle this
-        int asciiAlower = 97;
-        int asciiJlower = 106;
-        int ascii0 = 48;
-        int ascii1 = 49;
-        int ascii9 = 57;
         boolean isValidRow = false;
         char rowValue = Character.toLowerCase(coordinate.charAt(0));
         int asciiRowValue = (int)rowValue;
 
-        if(asciiRowValue >= asciiAlower && asciiRowValue <= asciiJlower){
+        if(asciiRowValue >= ASCII_A_LOWER && asciiRowValue <= ASCII_J_LOWER){
             isValidRow = true;
         }
 
@@ -164,7 +189,7 @@ public class Logic {
         if(coordinate.length() > 1 && coordinate.length() < 4){
             if(coordinate.length() == 2){
                 int asciiDigitValue = (int)(coordinate.charAt(1));
-                if(asciiDigitValue >= ascii1 && asciiDigitValue <= ascii9){
+                if(asciiDigitValue >= ASCII_1 && asciiDigitValue <= ASCII_9){
                     isValidColumn = true;
                 }
             }
@@ -172,7 +197,7 @@ public class Logic {
                 int asciiDigit1Value = (int)(coordinate.charAt(1));
                 int asciiDigit2Value = (int)(coordinate.charAt(2));
 
-                if(asciiDigit1Value == ascii1 && asciiDigit2Value == ascii0){
+                if(asciiDigit1Value == ASCII_1 && asciiDigit2Value == ASCII_0){
                     isValidColumn = true;
                 }
             }
@@ -188,17 +213,16 @@ public class Logic {
      */
     private int[] getActualCoordinate(String coordinate){
         //TODO: this assumes that the coordinate being passed is already valid
-        int[] intCoordinate = new int[2];
-        int asciiAlower = 97;
-        int ascii1 = 49;
+        int coordinateSize = 2;
+        int[] intCoordinate = new int[coordinateSize];
 
-        int rowValue = (int)(Character.toLowerCase(coordinate.charAt(0))) - asciiAlower;
+        int rowValue = (int)(Character.toLowerCase(coordinate.charAt(0))) - ASCII_A_LOWER;
         int columnValue;
-        if(coordinate.length() == 2){
-            columnValue = (int)(coordinate.charAt(1)) - ascii1;
+        if(coordinate.length() == coordinateSize){
+            columnValue = (int)(coordinate.charAt(1)) - ASCII_1;
         }
         else{
-            columnValue = 9;
+            columnValue = SIDE_LENGTH - 1;
         }
 
         intCoordinate[0] = rowValue;
@@ -214,6 +238,9 @@ public class Logic {
      */
     private void updateBoard(int row, int column, boolean isHit){
         int status = isHit ? 1 : -1; // check if this is actually correct
-        this.board[row][column] = status;
+        board[row][column] = status;
+
+        char charStatus = (!isHit) ? ' ' : Character.toLowerCase(tankBoard[row][column]);
+        tankBoard[row][column] = charStatus;
     }
 }
