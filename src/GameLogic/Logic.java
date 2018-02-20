@@ -1,13 +1,16 @@
 package GameLogic;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Class implementation for the Logic Class.
  */
 public class Logic {
     private final int ASCII_A_LOWER = 97;
+    private final int ASCII_A_UPPER = 65;
     private final int ASCII_J_LOWER = 106;
     private final int ASCII_0 = 48;
     private final int ASCII_1 = 49;
@@ -20,11 +23,11 @@ public class Logic {
     private char[][] tankBoard;
 
     /**
-     *  Constructor for the Logic Class.
+     *  Constructor for the Logic Class. Constructed class will have an empty tankList and a field without tanks if randomization did not succeed.
      * @param tankNum Must not be null. Used to initialize how many tanks will be on the field.
      */
-    public Logic(int tankNum){
-        assert tankNum > 0;//TODO: take this out later
+    public Logic(int tankNum, int maxTries){
+        assert tankNum > 0;//TODO: take this out later, not sure if we have to error check for this
         int fortressHealth = 1500;
 
         this.fortress = new Fortress(fortressHealth);
@@ -38,7 +41,16 @@ public class Logic {
             }
         }
 
-        randomize(tankNum);
+        int currentTries = 0;
+        while(!randomize(tankNum) && currentTries < maxTries){
+            for(int i = 0; i < SIDE_LENGTH; i++){
+                for(int j = 0; j < SIDE_LENGTH; j++){
+                    this.tankBoard[i][j] = '.';
+                }
+            }
+            tankList.clear();
+            currentTries++;
+        }
     }
 
     /**
@@ -163,11 +175,200 @@ public class Logic {
      *
      * @param tankNum
      */
-    private void randomize(int tankNum){
-         /*
-         Here, we will try to randomize the tanks depending on how many tanks one is asked to put.
-         We will be updating the tankList and will instantiate the tanks in them. We will also update the tankBoard here.
-          */
+    private boolean randomize(int tankNum){
+        int tetraminoSize = 4;
+        Random rand = new Random();
+
+        //checks if it is at all possible to put all tanks on the board
+        if(tankNum > (int)((double)(SIDE_LENGTH*SIDE_LENGTH)/(double)(tetraminoSize))){//TODO: Error check
+            return false;
+        }
+
+        //create all the tanks so long as there are no errors
+        int tanksPlaced = 0;
+        int asciiValue = ASCII_A_UPPER;
+        while(tanksPlaced < tankNum){
+            int[] rows = new int[tetraminoSize];
+            int[] columns = new int[tetraminoSize];
+            int tetraminosPlaced = 0;
+
+            //check if there is at least one open spot in the board
+            boolean canPlaceOne = false;
+            for(int i = 0; i < SIDE_LENGTH; i++){
+                for(int j = 0; j < SIDE_LENGTH; j++){
+                    if(tankBoard[i][j] == '.'){
+                        canPlaceOne = true;
+                    }
+                }
+            }
+            if(!canPlaceOne){
+                return false;
+            }
+
+            //find a random coordinate that is currently free
+            List<Point> pointList = new ArrayList<>();
+            getAllFreeCoordinates(pointList);
+            int pointListSize = pointList.size();
+            int randomIndex = rand.nextInt(pointListSize);// 0 is min, pointListSize - 1 is max//todo: error check
+
+            //update rows, columns, and the current tankboard
+            rows[tetraminosPlaced] = pointList.get(randomIndex).y;
+            columns[tetraminosPlaced] = pointList.get(randomIndex).x;
+            tankBoard[rows[tetraminosPlaced]][columns[tetraminosPlaced]] = (char)(asciiValue); // todo: error check
+            tetraminosPlaced++;
+
+            while(tetraminosPlaced < tetraminoSize){
+                if(!atLeastOneFreeAdjacent(tankBoard,rows,columns,tetraminosPlaced)){
+                    return false;
+                }
+
+                //randomly choose a coordinate from all the free adjacent points of the current tetramino size
+                List<Point> adjacentPointList = new ArrayList<>();
+                getAllAdjacent(adjacentPointList, tankBoard, tetraminosPlaced, rows, columns);
+                int adjacentListSize = adjacentPointList.size();
+                randomIndex = rand.nextInt(adjacentListSize);//from 0 to adjacentListSize - 1//todo: error check
+
+                //update rows, columns, tankboard, and how many have been occupied so far
+                rows[tetraminosPlaced] = adjacentPointList.get(randomIndex).y;
+                columns[tetraminosPlaced] = adjacentPointList.get(randomIndex).x;
+                tankBoard[rows[tetraminosPlaced]][columns[tetraminosPlaced]] = (char)(asciiValue); // todo: error check
+                tetraminosPlaced++;
+            }
+
+            //initialize a tank when the proper coordinates have been occupied, update how many tanks have been placed and update the letter
+            tankList.add(new Tank(rows, columns));
+            asciiValue++;
+            tanksPlaced++;
+        }
+
+        return true;
+    }
+
+    /**
+     * Checks if there is one free adjacent coordinate in the occupied spots so far.
+     * @param tankBoard Must not be null. 2D character array showing the positions of all the tanks
+     * @param rows Must not be null. Integer array that shows all the occupied row spots of the tank so far.
+     * @param columns Must not be null. Integer array that shows all the occupied column spots of the tank so far.
+     * @param tetraminosPlaced Must not be null. Integer that shows how many tetraminos have claimed a spot so far.
+     * @return Boolean showing if there is at least one free adjacent coordinate in the occupied spots so far.
+     */
+    private boolean atLeastOneFreeAdjacent(char[][] tankBoard, int[] rows, int[] columns, int tetraminosPlaced){
+        //boolean canPlaceAdjacent = false;
+        for(int i = 0; i < tetraminosPlaced; i++){
+            if(columns[i] == 0){
+                if(rows[i] == 0 && canPlaceOnAdjacent(tankBoard, rows[i], columns[i], true, false, false, true)){
+                    //upper left corner
+                    return true;
+                }
+                else if(rows[i] == SIDE_LENGTH - 1 && canPlaceOnAdjacent(tankBoard, rows[i], columns[i], false, false, true, true)){
+                    //lower left corner
+                    return true;
+                }
+                else if(canPlaceOnAdjacent(tankBoard, rows[i], columns[i], false, false, false, true)){
+                    //left side
+                    return true;
+                }
+            }
+            else if(columns[i] == SIDE_LENGTH - 1){
+                if(rows[i] == 0 && canPlaceOnAdjacent(tankBoard, rows[i], columns[i], true, true, false, false)){
+                    //upper right corner
+                    return true;
+                }
+                else if(rows[i] == SIDE_LENGTH - 1 && canPlaceOnAdjacent(tankBoard, rows[i], columns[i], false, true, true, false)){
+                    //lower right corner
+                    return true;
+                }
+                else if(canPlaceOnAdjacent(tankBoard, rows[i], columns[i], false, true, false, false)){
+                    //right side
+                    return true;
+                }
+            }
+            else if(rows[i] == 0 && canPlaceOnAdjacent(tankBoard, rows[i], columns[i], true, false, false, false)){
+                //top side
+                return true;
+            }
+            else if(rows[i] == SIDE_LENGTH - 1 && canPlaceOnAdjacent(tankBoard, rows[i], columns[i], false, false, true, false)){
+                //bottom side
+                return true;
+            }
+            else if(canPlaceOnAdjacent(tankBoard, rows[i], columns[i], true, true, true, true)){
+                //somewhere in the middle
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Initializes the point list to get all free adjacent spots of so far occupied spots.
+     * @param adjacentPointList Must not be null. List of Points to later have all the free adjacent spots of so far occupied spots.
+     * @param tankBoard Must not be null. 2D char array that contains the locations of all occupied spots.
+     * @param tetraminosPlaced Must not be null. Integer that shows how many tetraminos have been placed so far.
+     * @param rows Must not be null. Integer array that shows all the row coordinates of the occupied spots.
+     * @param columns Must not be null. Integer array that shows all the column coordinates of the occupied spots.
+     */
+    private void getAllAdjacent(List<Point> adjacentPointList, char[][] tankBoard, int tetraminosPlaced, int[] rows, int[] columns){
+        for(int i = 0; i < tetraminosPlaced; i++){
+            if(columns[i] < SIDE_LENGTH - 1 && canPlaceOnAdjacent(tankBoard, rows[i], columns[i], false, false, false, true)){
+                adjacentPointList.add(new Point(columns[i] + 1, rows[i]));
+            }
+
+            if(columns[i]  > 0 && canPlaceOnAdjacent(tankBoard, rows[i], columns[i], false, true, false, false)){
+                adjacentPointList.add(new Point(columns[i] - 1, rows[i]));
+            }
+
+            if(rows[i]  < SIDE_LENGTH - 1 && canPlaceOnAdjacent(tankBoard, rows[i], columns[i], true, false, false, false)){
+                adjacentPointList.add(new Point(columns[i], rows[i] + 1));
+            }
+
+            if(rows[i] > 0 && canPlaceOnAdjacent(tankBoard, rows[i], columns[i], false, false, true, false)){
+                adjacentPointList.add(new Point(columns[i], rows[i] - 1));
+            }
+        }
+    }
+
+    /**
+     * Initializes the point list to get all free spots on the board.
+     * @param pointList Must not be null. List of Points to later have all the free spots on the board.
+     */
+    private void getAllFreeCoordinates(List<Point> pointList){
+        for(int row = 0; row < SIDE_LENGTH; row++){
+            for(int column = 0; column < SIDE_LENGTH; column++){
+                if(tankBoard[row][column] == '.'){
+                    pointList.add(new Point(column, row));
+                }
+            }
+        }
+    }
+
+    /**
+     * Checks if an adjacent spot is free
+     * @param tankBoard Must not be null. 2D Character array to see where the tanks are in the field.
+     * @param row Must not be null. Integer that contains the row to check around.
+     * @param column Must not be null. Integer that contains the column to check around.
+     * @param isTop Must not be null. Boolean that contains if the point to look around could be on top of the adjacent to check.
+     * @param isRight Must not be null. Boolean that contains if the point to look around could be on the right of the adjacent to check.
+     * @param isBottom Must not be null. Boolean that contains if the point to look around could be on the bottom of the adjacent to check.
+     * @param isLeft Must not be null. Boolean that contains if the point to look around could be on the left of the adjacent to check.
+     * @return Returns a boolean stating if at least one of the edges to check has a free spot.
+     */
+    private boolean canPlaceOnAdjacent(char[][] tankBoard, int row, int column, boolean isTop, boolean isRight, boolean isBottom, boolean isLeft){
+        if(isTop && tankBoard[row + 1][column] == '.'){
+            return true;
+        }
+
+        if(isRight && tankBoard[row][column - 1] == '.'){
+            return true;
+        }
+
+        if(isBottom && tankBoard[row - 1][column] == '.'){
+            return true;
+        }
+
+        if(isLeft && tankBoard[row][column + 1] == '.'){
+            return true;
+        }
+        return false;
     }
 
     /**
