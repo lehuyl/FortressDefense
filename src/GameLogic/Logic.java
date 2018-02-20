@@ -25,6 +25,7 @@ public class Logic {
     /**
      *  Constructor for the Logic Class. Constructed class will have an empty tankList and a field without tanks if randomization did not succeed.
      * @param tankNum Must not be null. Used to initialize how many tanks will be on the field.
+     * @param maxTries Must not be null. Integer used to try this amount of times to initialize the tanks.
      */
     public Logic(int tankNum, int maxTries){
         assert tankNum > 0;//TODO: take this out later, not sure if we have to error check for this
@@ -172,8 +173,8 @@ public class Logic {
     }
 
     /**
-     *
-     * @param tankNum
+     *  Checks to see if it is possible to randomize the tanks. If it is possible, it goes ahead and updates the tankList and the tankBoard.
+     * @param tankNum Must not be null. Integer showing how many tanks are supposed to be placed on the field.
      */
     private boolean randomize(int tankNum){
         int tetraminoSize = 4;
