@@ -16,11 +16,15 @@ public class Logic {
     private final int ASCII_1 = 49;
     private final int ASCII_9 = 57;
     private final int SIDE_LENGTH = 10;
+    private final int MISS = -1;
+    private final int HIT = 1;
+    private final char EMPTY_CELL = '.';
+
 
     private List<Tank> tankList;
     private Fortress fortress;
     private int[][] board;//-1 miss, 0 untouched, 1 hit
-    private char[][] tankBoard;
+    private char[][] tankBoard;//' ' miss, '.' untouched, upperCase untouched, lowerCase hit
 
     /**
      *  Constructor for the Logic Class. Constructed class will have an empty tankList and a field without tanks if randomization did not succeed.
@@ -28,7 +32,6 @@ public class Logic {
      * @param maxTries Must not be null. Integer used to try this amount of times to initialize the tanks.
      */
     public Logic(int tankNum, int maxTries){
-        assert tankNum > 0;//TODO: take this out later, not sure if we have to error check for this
         int fortressHealth = 1500;
 
         this.fortress = new Fortress(fortressHealth);
@@ -38,7 +41,7 @@ public class Logic {
 
         for(int i = 0; i < SIDE_LENGTH; i++){
             for(int j = 0; j < SIDE_LENGTH; j++){
-                this.tankBoard[i][j] = '.';
+                this.tankBoard[i][j] = EMPTY_CELL;
             }
         }
 
@@ -46,7 +49,7 @@ public class Logic {
         while(currentTries < maxTries && !randomize(tankNum)){
             for(int i = 0; i < SIDE_LENGTH; i++){
                 for(int j = 0; j < SIDE_LENGTH; j++){
-                    this.tankBoard[i][j] = '.';
+                    this.tankBoard[i][j] = EMPTY_CELL;
                 }
             }
             tankList.clear();
@@ -144,8 +147,10 @@ public class Logic {
      * @return Integer. -1 if invalid coordinate, 0 if miss, and 1 if hit.
      */
     public int shootCoordinate(String coordinate){
+        int invalid = -1;
+        int miss = 0;
         if(!isValidCoordinate(coordinate)){
-            return -1;
+            return invalid;
         }
 
         int[] numericalCoordinate = getActualCoordinate(coordinate);
@@ -155,12 +160,12 @@ public class Logic {
         for(Tank currentTank : tankList){
             if(currentTank.hit(row, column)){
                 updateBoard(row, column, true);
-                return 1;
+                return HIT;
             }
         }
 
         updateBoard(row, column, false);
-        return 0;
+        return miss;
     }
 
     /**
@@ -182,7 +187,7 @@ public class Logic {
         Random rand = new Random();
 
         //checks if it is at all possible to put all tanks on the board
-        if(tankNum > (int)((double)(SIDE_LENGTH*SIDE_LENGTH)/(double)(blockSize))){//TODO: Error check
+        if(tankNum > (int)((double)(SIDE_LENGTH*SIDE_LENGTH)/(double)(blockSize))){
             return false;
         }
 
@@ -198,7 +203,7 @@ public class Logic {
             boolean canPlaceOne = false;
             for(int i = 0; i < SIDE_LENGTH; i++){
                 for(int j = 0; j < SIDE_LENGTH; j++){
-                    if(tankBoard[i][j] == '.'){
+                    if(tankBoard[i][j] == EMPTY_CELL){
                         canPlaceOne = true;
                     }
                 }
@@ -211,12 +216,12 @@ public class Logic {
             List<Point> pointList = new ArrayList<>();
             getAllFreeCoordinates(pointList);
             int pointListSize = pointList.size();
-            int randomIndex = rand.nextInt(pointListSize);// 0 is min, pointListSize - 1 is max//todo: error check
+            int randomIndex = rand.nextInt(pointListSize);
 
             //update rows, columns, and the current tankboard
             rows[blockPlaced] = pointList.get(randomIndex).y;
             columns[blockPlaced] = pointList.get(randomIndex).x;
-            tankBoard[rows[blockPlaced]][columns[blockPlaced]] = (char)(asciiValue); // todo: error check
+            tankBoard[rows[blockPlaced]][columns[blockPlaced]] = (char)(asciiValue);
             blockPlaced++;
 
             while(blockPlaced < blockSize){
@@ -228,12 +233,12 @@ public class Logic {
                 List<Point> adjacentPointList = new ArrayList<>();
                 getAllAdjacent(adjacentPointList, tankBoard, blockPlaced, rows, columns);
                 int adjacentListSize = adjacentPointList.size();
-                randomIndex = rand.nextInt(adjacentListSize);//from 0 to adjacentListSize - 1//todo: error check
+                randomIndex = rand.nextInt(adjacentListSize);
 
                 //update rows, columns, tankboard, and how many have been occupied so far
                 rows[blockPlaced] = adjacentPointList.get(randomIndex).y;
                 columns[blockPlaced] = adjacentPointList.get(randomIndex).x;
-                tankBoard[rows[blockPlaced]][columns[blockPlaced]] = (char)(asciiValue); // todo: error check
+                tankBoard[rows[blockPlaced]][columns[blockPlaced]] = (char)(asciiValue);
                 blockPlaced++;
             }
 
@@ -336,7 +341,7 @@ public class Logic {
     private void getAllFreeCoordinates(List<Point> pointList){
         for(int row = 0; row < SIDE_LENGTH; row++){
             for(int column = 0; column < SIDE_LENGTH; column++){
-                if(tankBoard[row][column] == '.'){
+                if(tankBoard[row][column] == EMPTY_CELL){
                     pointList.add(new Point(column, row));
                 }
             }
@@ -356,25 +361,25 @@ public class Logic {
      */
     private boolean canPlaceOnAdjacent(char[][] tankBoard, int row, int column, boolean isTop, boolean isRight, boolean isBottom, boolean isLeft){
         if(isTop){
-            if(tankBoard[row + 1][column] == '.'){
+            if(tankBoard[row + 1][column] == EMPTY_CELL){
                 return true;
             }
         }
 
         if(isRight){
-            if(tankBoard[row][column - 1] == '.'){
+            if(tankBoard[row][column - 1] == EMPTY_CELL){
                 return true;
             }
         }
 
         if(isBottom){
-            if(tankBoard[row - 1][column] == '.'){
+            if(tankBoard[row - 1][column] == EMPTY_CELL){
                 return true;
             }
         }
 
         if(isLeft){
-            if(tankBoard[row][column + 1] == '.'){
+            if(tankBoard[row][column + 1] == EMPTY_CELL){
                 return true;
             }
         }
@@ -383,11 +388,14 @@ public class Logic {
 
     /**
      *  Checks if the coordinate given is valid.
-     * @param coordinate Must not be null. Must not have any spaces. String that shows the coordinate of where to fire.
-     * @return Boolean. Shows if the coordinate given was valid.
+     * @param coordinate Must not be null. String that shows the coordinate of where to fire.
+     * @return Boolean. Shows if the coordinate given was valid. A Sting with at least one space will be counted as invalid.
      */
     private boolean isValidCoordinate(String coordinate){
-        assert !(coordinate.contains(" "));//TODO: take this out later, not sure if we have to handle this
+        int maxCoordinateLength = 3;
+        if(coordinate.contains(" ")){
+            return false;
+        }
         boolean isValidRow = false;
         char rowValue = Character.toLowerCase(coordinate.charAt(0));
         int asciiRowValue = (int)rowValue;
@@ -397,7 +405,7 @@ public class Logic {
         }
 
         boolean isValidColumn = false;
-        if(coordinate.length() > 1 && coordinate.length() < 4){
+        if(coordinate.length() > 1 && coordinate.length() <= maxCoordinateLength){
             if(coordinate.length() == 2){
                 int asciiDigitValue = (int)(coordinate.charAt(1));
                 if(asciiDigitValue >= ASCII_1 && asciiDigitValue <= ASCII_9){
@@ -423,7 +431,6 @@ public class Logic {
      * @return Integer Array of 2 elements containing values 0 to 9;
      */
     private int[] getActualCoordinate(String coordinate){
-        //TODO: this assumes that the coordinate being passed is already valid
         int coordinateSize = 2;
         int[] intCoordinate = new int[coordinateSize];
 
@@ -448,7 +455,7 @@ public class Logic {
      * @param isHit Must not be null. Boolean that shows if there was something hit in the location.
      */
     private void updateBoard(int row, int column, boolean isHit){
-        int status = isHit ? 1 : -1; // check if this is actually correct
+        int status = isHit ? HIT : MISS;
         board[row][column] = status;
 
         char charStatus = (!isHit) ? ' ' : Character.toLowerCase(tankBoard[row][column]);

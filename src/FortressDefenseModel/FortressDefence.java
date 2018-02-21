@@ -2,27 +2,23 @@ package FortressDefenseModel;
 
 import GameLogic.Logic;
 
-import java.util.Scanner;
-
 /**
  * Main class for running FortressDefense
  */
 public class FortressDefence {
 
-    public static final int DEFAULT_TANK_NUM = 5;
+    private static final int DEFAULT_TANK_NUM = 5;
 
     public static void main(String[] args)
     {
         //start of game
-        Scanner scanner = new Scanner(System.in);
         int tankNum = DEFAULT_TANK_NUM;
-        if(scanner.hasNextInt())
-        {
-            tankNum = scanner.nextInt();
-        }
-        String cheat = scanner.nextLine();
+
         boolean isCheat = false;
-        if(cheat.trim().toLowerCase().equals("--cheat"))
+        if(args.length == 1){
+            tankNum = Integer.parseInt(args[0]);
+        }
+        if(args.length == 2 && args[1].trim().toLowerCase().equals("--cheat"))
             isCheat = true;
 
         UserInterface ui = new UserInterface();
@@ -40,14 +36,12 @@ public class FortressDefence {
         while(!logic.isGameOver())
         {
             ui.printMovePrompt();
-//            String userInput = ui.getUserInput();
 
 
             int result = logic.shootCoordinate(ui.getUserInput());
             //input error
             while(result == -1)
             {
-//                System.out.println("Invalid target. Please enter a coordinate such as D10.");
                 ui.printMoveResult(result, logic.getTanksDamageForUI());
                 ui.printMovePrompt();
                 result = logic.shootCoordinate(ui.getUserInput());
