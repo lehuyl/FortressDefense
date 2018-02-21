@@ -43,7 +43,7 @@ public class Logic {
         }
 
         int currentTries = 0;
-        while(!randomize(tankNum) && currentTries < maxTries){
+        while(currentTries < maxTries && !randomize(tankNum)){
             for(int i = 0; i < SIDE_LENGTH; i++){
                 for(int j = 0; j < SIDE_LENGTH; j++){
                     this.tankBoard[i][j] = '.';
@@ -53,6 +53,15 @@ public class Logic {
             currentTries++;
         }
     }
+
+    /**
+     * Returns true and throws flag that game is not initialized properly
+     */
+    public boolean isBoardEmpty()
+    {
+        return tankList.isEmpty();
+    }
+
 
     /**
      *  Finds out if the game has ended.

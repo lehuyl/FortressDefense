@@ -16,9 +16,9 @@ public class Tetramino {
 
     /**
      * Alogrithm used to register a hit to Tetramino.
-     * @param row
-     * @param col
-     * @return
+     * @param row Must not be null. Coordinate for row
+     * @param col Must not be null. Coordinate for column
+     * @return Boolean containing whether or not this tetramino has been hit.
      */
     public boolean isHit(int row, int col)
     {
@@ -34,7 +34,7 @@ public class Tetramino {
 
     /**
      * Returns live status of Tetramino.
-     * @return
+     * @return  Boolean containing live status of Tetramino.
      */
     public boolean isAlive()
     {
