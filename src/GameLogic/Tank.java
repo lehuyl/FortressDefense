@@ -1,16 +1,17 @@
 package GameLogic;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Class implementation for enemy tanks.
  */
 public class Tank {
-    public static final int FOUR_CELL = 4;
-    public static final int THREE_CELL = 3;
-    public static final int TWO_CELL = 2;
-    public static final int ONE_CELL = 1;
-    public static final int ZERO_CELL = 0;
+    private static final int FOUR_CELL = 4;
+    private static final int THREE_CELL = 3;
+    private static final int TWO_CELL = 2;
+    private static final int ONE_CELL = 1;
+    private static final int ZERO_CELL = 0;
 
     private List<Tetramino> tetraminoList;
     private int power;
@@ -23,6 +24,7 @@ public class Tank {
      */
     public Tank(int[] rows, int[] columns) {
         this.isAlive = true;
+        tetraminoList = new ArrayList<>();
         setTetraminos(rows, columns);
         setPower(getLiveTetraminoNum());
     }
@@ -52,19 +54,18 @@ public class Tank {
     public boolean hit(int row, int column)
     {
         boolean hit = false;
-        for(int i = 0; i < tetraminoList.size(); i++)
+        for(Tetramino tetramino : tetraminoList)
         {
-            Tetramino tetramino = tetraminoList.get(i);
-            if(tetramino.isHit(row, column));
+            if(tetramino.isHit(row, column))
             {
                 int currentTetNum = getLiveTetraminoNum();
                 setPower(currentTetNum);
-
-                return true;
+                hit = true;
+                return hit;
             }
         }
 
-        return false;
+        return hit;
     }
 
     /**
@@ -124,9 +125,8 @@ public class Tank {
     private int getLiveTetraminoNum()
     {
         int tetraminoCount = 0;
-        for(int tetraIterator = 0; tetraIterator < tetraminoList.size(); tetraIterator++)
+        for(Tetramino tetramino: tetraminoList)
         {
-            Tetramino tetramino = tetraminoList.get(tetraIterator);
             if(tetramino.isAlive())
             {
                 tetraminoCount++;

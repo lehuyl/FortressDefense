@@ -108,7 +108,7 @@ public class Logic {
      * Returns the damage of the active tanks on the field.
      * @return Integer list for the damage of all active tanks.
      */
-    private List<Integer> getTanksDamageForUI(){
+    public List<Integer> getTanksDamageForUI(){
         List<Integer> tanksDamage = new ArrayList<>();
         for(Tank currentTank : tankList){
             int currentDamage = currentTank.getPower();

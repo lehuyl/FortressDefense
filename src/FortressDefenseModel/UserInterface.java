@@ -54,36 +54,36 @@ public class UserInterface {
             boardString.append("    ");
 
             switch(i){
-                case 0: boardString.append("A");
+                case 0: boardString.append("A ");
                     break;
-                case 1: boardString.append("B");
+                case 1: boardString.append("B ");
                     break;
-                case 2: boardString.append("C");
+                case 2: boardString.append("C ");
                     break;
-                case 3: boardString.append("D");
+                case 3: boardString.append("D ");
                     break;
-                case 4: boardString.append("E");
+                case 4: boardString.append("E ");
                     break;
-                case 5: boardString.append("F");
+                case 5: boardString.append("F ");
                     break;
-                case 6: boardString.append("G");
+                case 6: boardString.append("G ");
                     break;
-                case 7: boardString.append("H");
+                case 7: boardString.append("H ");
                     break;
-                case 8: boardString.append("I");
+                case 8: boardString.append("I ");
                     break;
-                case 9: boardString.append("J");
+                case 9: boardString.append("J ");
                     break;
                 default:
                     assert false;
             }
             for(int j = 0; j < BOARD_LENGTH; j++){
                 switch (stateBoard[i][j]){
-                    case -1: boardString.append(" ");
+                    case -1: boardString.append("   ");
                         break;
-                    case 0: boardString.append("~");
+                    case 0: boardString.append(" ~ ");
                         break;
-                    case 1: boardString.append("X");
+                    case 1: boardString.append(" X ");
                     default:
                         assert false;
                 }
@@ -110,7 +110,7 @@ public class UserInterface {
         System.out.println("Starting game with " + tankNum + " tanks.");
         System.out.println("----------------------------");
         System.out.println("Welcome to Fortress Defense!");
-        System.out.println("by Steven Lee and Miguel Taningco");
+        System.out.println("by Steven Le and Miguel Taningco");
         System.out.println("----------------------------\n\n");
         System.out.println("");
         System.out.println("");
@@ -139,7 +139,7 @@ public class UserInterface {
             System.out.println("HIT!");
         }
 
-        for(int i = 1; i <= damageArray.size(); i++){
+        for(int i = 0; i < damageArray.size(); i++){
             System.out.println("Alive tank #" + i + " of " + damageArray.size() + " shot you for " + damageArray.get(i) + "!");
         }
         System.out.println("");
