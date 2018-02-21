@@ -45,7 +45,6 @@ public class Fortress {
      * @param amount Must not be null. Decreases the health by this amount.
      */
     public void decreaseHealth(int amount){
-        assert amount >= 0;//TODO: delete this on release.
         int dead = 0;
         this.health -= amount;
 

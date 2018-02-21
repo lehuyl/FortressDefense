@@ -48,7 +48,7 @@ public class UserInterface {
     public void printGameState(int[][] stateBoard, int fortressHealth){
         //this also shows Gameboard:
         System.out.println("Game Board:");
-        System.out.println("       1  2  3  4  5  6  7  8  9  10");
+        System.out.println("       1  2  3  4  5  6  7  8  9 10");
         for(int i = 0; i < BOARD_LENGTH; i++){
             StringBuilder boardString = new StringBuilder();
             boardString.append("    ");
@@ -155,7 +155,7 @@ public class UserInterface {
         //this also shows Gameboard:
 
         System.out.println("Game Board:");
-        System.out.println("       1  2  3  4  5  6  7  8  9  10");
+        System.out.println("       1  2  3  4  5  6  7  8  9 10");
         for(int i = 0; i < BOARD_LENGTH; i++){
             StringBuilder boardString = new StringBuilder();
             boardString.append("    ");
