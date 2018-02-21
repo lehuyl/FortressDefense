@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Class implementation for enemy tanks.
+ * Class implementation for enemy Tank.
  */
 public class Tank {
     private static final int FOUR_CELL = 4;
@@ -13,64 +13,62 @@ public class Tank {
     private static final int ONE_CELL = 1;
     private static final int ZERO_CELL = 0;
 
-    private List<Tetramino> tetraminoList;
+    private List<Block> blockList;
     private int power;
     private boolean isAlive;
 
     /**
-     * Set up Tetraminos
-     * @param rows Must not be null. Array of row coordinates for Tetramino blocks.
-     * @param columns Must not be null. Array of column coordinates for Tetramino blocks.
+     * Set up all Block for Tank
+     * @param rows Must not be null. Array of row coordinates for Block.
+     * @param columns Must not be null. Array of column coordinates for Block.
      */
     public Tank(int[] rows, int[] columns) {
         this.isAlive = true;
-        tetraminoList = new ArrayList<>();
-        setTetraminos(rows, columns);
-        setPower(getLiveTetraminoNum());
+        blockList = new ArrayList<>();
+        setBlock(rows, columns);
+        setPower(getLiveBlockNum());
     }
 
     /**
-     * Sets position values and creates all Tetraminos.
+     * Sets position values and creates all Block.
      * Requires rows and columns inputs to be correct.
-     * @param rows  Must not be null. Contains array for each row placement of each Tetramino
-     * @param columns Must not be null. Contains array for each column placement of each Tetramino
+     * @param rows  Must not be null. Contains array for each row placement of each Block
+     * @param columns Must not be null. Contains array for each column placement of each Block
      */
-    private void setTetraminos(int[] rows, int[] columns)
+    private void setBlock(int[] rows, int[] columns)
     {
         for(int i = 0; i < rows.length; i++)
         {
-            Tetramino tetramino = new Tetramino(rows[i], columns[i]);
-            tetraminoList.add(tetramino);
+            Block block = new Block(rows[i], columns[i]);
+            blockList.add(block);
         }
     }
 
     /**
-     * Returns true if Tetraminio is hit.
-     * Set off algorithm to kill Tetramino.
-     * @param row Must not be null. Coordinate for row of Tetramino
-     * @param column Must not be null. Coordinate for column of Tetramino
+     * Returns true if Block is hit.
+     * Set off algorithm to kill Block.
+     * @param row Must not be null. Coordinate for row of Block
+     * @param column Must not be null. Coordinate for column of Block
      * @return Boolean containing whether hit was successful or not.
      */
     public boolean hit(int row, int column)
     {
-        boolean hit = false;
-        for(Tetramino tetramino : tetraminoList)
+        for(Block block : blockList)
         {
-            if(tetramino.isHit(row, column))
+            if(block.isHit(row, column))
             {
-                int currentTetNum = getLiveTetraminoNum();
-                setPower(currentTetNum);
-                hit = true;
-                return hit;
+                int currentBlockNum = getLiveBlockNum();
+                setPower(currentBlockNum);
+
+                return true;
             }
         }
-
-        return hit;
+        return false;
     }
 
     /**
      * Returns live status of Tank
-     * @return Boolean containing status of tank.
+     * @return Boolean containing status of Tank.
      */
     public boolean isAlive()
     {
@@ -78,19 +76,19 @@ public class Tank {
     }
 
     /**
-     * Sets tank status to dead.
+     * Sets Tank status to dead.
      */
     private void setDead()
     {
-        if(getLiveTetraminoNum() == ZERO_CELL)
+        if(getLiveBlockNum() == ZERO_CELL)
         {
             this.isAlive = false;
         }
     }
 
     /**
-     * Returns power level of the tank.
-     * @return Int containing value of power of tank.
+     * Returns power level of the Tank.
+     * @return Int containing value of power of Tank.
      */
     public int getPower()
     {
@@ -99,19 +97,19 @@ public class Tank {
 
     /**
      * Sets the power of the tank.
-     * @param tetraminoNum Number of tetramino blocks that have not been hit.
+     * @param blockNum Number of Block that have not been hit.
      */
-    private void setPower(int tetraminoNum)
+    private void setPower(int blockNum)
     {
-        if(tetraminoNum == FOUR_CELL)
+        if(blockNum == FOUR_CELL)
             this.power = 20;
-        else if(tetraminoNum == THREE_CELL)
+        else if(blockNum == THREE_CELL)
             this.power = 5;
-        else if(tetraminoNum == TWO_CELL)
+        else if(blockNum == TWO_CELL)
             this.power = 2;
-        else if(tetraminoNum == ONE_CELL)
+        else if(blockNum == ONE_CELL)
             this.power = 1;
-        else if(tetraminoNum == ZERO_CELL) {
+        else if(blockNum == ZERO_CELL) {
             this.power = 0;
             setDead();
         }
@@ -119,19 +117,19 @@ public class Tank {
 
     /**
      * Parameter used to calculate the power of the Tank.
-     * Iterate through list of Tetraminos, and count how many are still alive.
-     * @return Int containing number of live Tetraminos
+     * Iterate through list of Block, and count how many are still alive.
+     * @return Int containing number of live Block
      */
-    private int getLiveTetraminoNum()
+    private int getLiveBlockNum()
     {
-        int tetraminoCount = 0;
-        for(Tetramino tetramino: tetraminoList)
+        int blockCount = 0;
+        for(Block block : blockList)
         {
-            if(tetramino.isAlive())
+            if(block.isAlive())
             {
-                tetraminoCount++;
+                blockCount++;
             }
         }
-        return tetraminoCount;
+        return blockCount;
     }
 }

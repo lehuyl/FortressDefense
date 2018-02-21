@@ -94,8 +94,8 @@ public class Logic {
     }
 
     /**
-     *  Returns the health of the fortress.
-     * @return Integer showing the health of the fortress.
+     *  Returns the health of the Fortress.
+     * @return Integer showing the health of the Fortress.
      */
     public int getFortressHealth(){
         return this.fortress.getHealth();
@@ -103,7 +103,7 @@ public class Logic {
 
     /**
      *  Returns the damage each tank can do.
-     * @return Integer array showing the damage of each tank.
+     * @return Integer array showing the damage of each Tank.
      */
     private int[] getTanksDamage(){
         int[] tanksDamageArray = new int[tankList.size()];
@@ -115,7 +115,7 @@ public class Logic {
 
     /**
      * Returns the damage of the active tanks on the field.
-     * @return Integer list for the damage of all active tanks.
+     * @return Integer list for the damage of all active Tank.
      */
     public List<Integer> getTanksDamageForUI(){
         List<Integer> tanksDamage = new ArrayList<>();
@@ -132,18 +132,10 @@ public class Logic {
 
     /**
      *  Returns where there is and isnt a tank in the board.
-     * @return 2D Boolean Array showing where the tanks are.
+     * @return 2D Boolean Array showing where the Tank are.
      */
     public char[][] getTankBoardState(){
         return tankBoard;
-    }
-
-    /**
-     *  Returns the list of Tanks found on the board.
-     * @return Tank List with the information of all the tanks.
-     */
-    public List<Tank> getTankList(){
-        return tankList;
     }
 
     /**
@@ -183,14 +175,14 @@ public class Logic {
 
     /**
      *  Checks to see if it is possible to randomize the tanks. If it is possible, it goes ahead and updates the tankList and the tankBoard.
-     * @param tankNum Must not be null. Integer showing how many tanks are supposed to be placed on the field.
+     * @param tankNum Must not be null. Integer showing how many Tank are supposed to be placed on the field.
      */
     private boolean randomize(int tankNum){
-        int tetraminoSize = 4;
+        int blockSize = 4;
         Random rand = new Random();
 
         //checks if it is at all possible to put all tanks on the board
-        if(tankNum > (int)((double)(SIDE_LENGTH*SIDE_LENGTH)/(double)(tetraminoSize))){//TODO: Error check
+        if(tankNum > (int)((double)(SIDE_LENGTH*SIDE_LENGTH)/(double)(blockSize))){//TODO: Error check
             return false;
         }
 
@@ -198,9 +190,9 @@ public class Logic {
         int tanksPlaced = 0;
         int asciiValue = ASCII_A_UPPER;
         while(tanksPlaced < tankNum){
-            int[] rows = new int[tetraminoSize];
-            int[] columns = new int[tetraminoSize];
-            int tetraminosPlaced = 0;
+            int[] rows = new int[blockSize];
+            int[] columns = new int[blockSize];
+            int blockPlaced = 0;
 
             //check if there is at least one open spot in the board
             boolean canPlaceOne = false;
@@ -222,27 +214,27 @@ public class Logic {
             int randomIndex = rand.nextInt(pointListSize);// 0 is min, pointListSize - 1 is max//todo: error check
 
             //update rows, columns, and the current tankboard
-            rows[tetraminosPlaced] = pointList.get(randomIndex).y;
-            columns[tetraminosPlaced] = pointList.get(randomIndex).x;
-            tankBoard[rows[tetraminosPlaced]][columns[tetraminosPlaced]] = (char)(asciiValue); // todo: error check
-            tetraminosPlaced++;
+            rows[blockPlaced] = pointList.get(randomIndex).y;
+            columns[blockPlaced] = pointList.get(randomIndex).x;
+            tankBoard[rows[blockPlaced]][columns[blockPlaced]] = (char)(asciiValue); // todo: error check
+            blockPlaced++;
 
-            while(tetraminosPlaced < tetraminoSize){
-                if(!atLeastOneFreeAdjacent(tankBoard,rows,columns,tetraminosPlaced)){
+            while(blockPlaced < blockSize){
+                if(!atLeastOneFreeAdjacent(tankBoard,rows,columns,blockPlaced)){
                     return false;
                 }
 
                 //randomly choose a coordinate from all the free adjacent points of the current tetramino size
                 List<Point> adjacentPointList = new ArrayList<>();
-                getAllAdjacent(adjacentPointList, tankBoard, tetraminosPlaced, rows, columns);
+                getAllAdjacent(adjacentPointList, tankBoard, blockPlaced, rows, columns);
                 int adjacentListSize = adjacentPointList.size();
                 randomIndex = rand.nextInt(adjacentListSize);//from 0 to adjacentListSize - 1//todo: error check
 
                 //update rows, columns, tankboard, and how many have been occupied so far
-                rows[tetraminosPlaced] = adjacentPointList.get(randomIndex).y;
-                columns[tetraminosPlaced] = adjacentPointList.get(randomIndex).x;
-                tankBoard[rows[tetraminosPlaced]][columns[tetraminosPlaced]] = (char)(asciiValue); // todo: error check
-                tetraminosPlaced++;
+                rows[blockPlaced] = adjacentPointList.get(randomIndex).y;
+                columns[blockPlaced] = adjacentPointList.get(randomIndex).x;
+                tankBoard[rows[blockPlaced]][columns[blockPlaced]] = (char)(asciiValue); // todo: error check
+                blockPlaced++;
             }
 
             //initialize a tank when the proper coordinates have been occupied, update how many tanks have been placed and update the letter
@@ -259,12 +251,12 @@ public class Logic {
      * @param tankBoard Must not be null. 2D character array showing the positions of all the tanks
      * @param rows Must not be null. Integer array that shows all the occupied row spots of the tank so far.
      * @param columns Must not be null. Integer array that shows all the occupied column spots of the tank so far.
-     * @param tetraminosPlaced Must not be null. Integer that shows how many tetraminos have claimed a spot so far.
+     * @param blockPlaced Must not be null. Integer that shows how many Block have claimed a spot so far.
      * @return Boolean showing if there is at least one free adjacent coordinate in the occupied spots so far.
      */
-    private boolean atLeastOneFreeAdjacent(char[][] tankBoard, int[] rows, int[] columns, int tetraminosPlaced){
+    private boolean atLeastOneFreeAdjacent(char[][] tankBoard, int[] rows, int[] columns, int blockPlaced){
         //boolean canPlaceAdjacent = false;
-        for(int i = 0; i < tetraminosPlaced; i++){
+        for(int i = 0; i < blockPlaced; i++){
             if(columns[i] == 0){
                 if(rows[i] == 0 && canPlaceOnAdjacent(tankBoard, rows[i], columns[i], true, false, false, true)){
                     //upper left corner
@@ -313,12 +305,12 @@ public class Logic {
      * Initializes the point list to get all free adjacent spots of so far occupied spots.
      * @param adjacentPointList Must not be null. List of Points to later have all the free adjacent spots of so far occupied spots.
      * @param tankBoard Must not be null. 2D char array that contains the locations of all occupied spots.
-     * @param tetraminosPlaced Must not be null. Integer that shows how many tetraminos have been placed so far.
+     * @param blockPlaced Must not be null. Integer that shows how many tetraminos have been placed so far.
      * @param rows Must not be null. Integer array that shows all the row coordinates of the occupied spots.
      * @param columns Must not be null. Integer array that shows all the column coordinates of the occupied spots.
      */
-    private void getAllAdjacent(List<Point> adjacentPointList, char[][] tankBoard, int tetraminosPlaced, int[] rows, int[] columns){
-        for(int i = 0; i < tetraminosPlaced; i++){
+    private void getAllAdjacent(List<Point> adjacentPointList, char[][] tankBoard, int blockPlaced, int[] rows, int[] columns){
+        for(int i = 0; i < blockPlaced; i++){
             if(columns[i] < SIDE_LENGTH - 1 && canPlaceOnAdjacent(tankBoard, rows[i], columns[i], false, false, false, true)){
                 adjacentPointList.add(new Point(columns[i] + 1, rows[i]));
             }
