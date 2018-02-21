@@ -141,7 +141,7 @@ public class UserInterface {
         }
 
         for(int i = 0; i < damageArray.size(); i++){
-            System.out.println("Alive tank #" + i + " of " + damageArray.size() + " shot you for " + damageArray.get(i) + "!");
+            System.out.println("Alive tank #" + (i+1) + " of " + damageArray.size() + " shot you for " + damageArray.get(i) + "!");
         }
         System.out.println("");
     }

@@ -19,8 +19,8 @@ public class Tank {
 
     /**
      * Set up Tetraminos
-     * @param rows
-     * @param columns
+     * @param rows Must not be null. Array of row coordinates for Tetramino blocks.
+     * @param columns Must not be null. Array of column coordinates for Tetramino blocks.
      */
     public Tank(int[] rows, int[] columns) {
         this.isAlive = true;
@@ -32,8 +32,8 @@ public class Tank {
     /**
      * Sets position values and creates all Tetraminos.
      * Requires rows and columns inputs to be correct.
-     * @param rows
-     * @param columns
+     * @param rows  Must not be null. Contains array for each row placement of each Tetramino
+     * @param columns Must not be null. Contains array for each column placement of each Tetramino
      */
     private void setTetraminos(int[] rows, int[] columns)
     {
@@ -47,9 +47,9 @@ public class Tank {
     /**
      * Returns true if Tetraminio is hit.
      * Set off algorithm to kill Tetramino.
-     * @param row
-     * @param column
-     * @return
+     * @param row Must not be null. Coordinate for row of Tetramino
+     * @param column Must not be null. Coordinate for column of Tetramino
+     * @return Boolean containing whether hit was successful or not.
      */
     public boolean hit(int row, int column)
     {
@@ -70,7 +70,7 @@ public class Tank {
 
     /**
      * Returns live status of Tank
-     * @return
+     * @return Boolean containing status of tank.
      */
     public boolean isAlive()
     {
@@ -90,7 +90,7 @@ public class Tank {
 
     /**
      * Returns power level of the tank.
-     * @return
+     * @return Int containing value of power of tank.
      */
     public int getPower()
     {
@@ -99,7 +99,7 @@ public class Tank {
 
     /**
      * Sets the power of the tank.
-     * @param tetraminoNum
+     * @param tetraminoNum Number of tetramino blocks that have not been hit.
      */
     private void setPower(int tetraminoNum)
     {
@@ -120,7 +120,7 @@ public class Tank {
     /**
      * Parameter used to calculate the power of the Tank.
      * Iterate through list of Tetraminos, and count how many are still alive.
-     * @return
+     * @return Int containing number of live Tetraminos
      */
     private int getLiveTetraminoNum()
     {
