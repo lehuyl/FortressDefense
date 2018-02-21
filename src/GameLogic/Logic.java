@@ -292,7 +292,7 @@ public class Logic {
                 //bottom side
                 return true;
             }
-            else if(canPlaceOnAdjacent(tankBoard, rows[i], columns[i], true, true, true, true)){
+            else if(columns[i] > 0 && columns[i] < SIDE_LENGTH - 1 && rows[i] > 0 && rows[i] < SIDE_LENGTH - 1 && canPlaceOnAdjacent(tankBoard, rows[i], columns[i], true, true, true, true)){
                 //somewhere in the middle
                 return true;
             }
@@ -354,20 +354,28 @@ public class Logic {
      * @return Returns a boolean stating if at least one of the edges to check has a free spot.
      */
     private boolean canPlaceOnAdjacent(char[][] tankBoard, int row, int column, boolean isTop, boolean isRight, boolean isBottom, boolean isLeft){
-        if(isTop && tankBoard[row + 1][column] == '.'){
-            return true;
+        if(isTop){
+            if(tankBoard[row + 1][column] == '.'){
+                return true;
+            }
         }
 
-        if(isRight && tankBoard[row][column - 1] == '.'){
-            return true;
+        if(isRight){
+            if(tankBoard[row][column - 1] == '.'){
+                return true;
+            }
         }
 
-        if(isBottom && tankBoard[row - 1][column] == '.'){
-            return true;
+        if(isBottom){
+            if(tankBoard[row - 1][column] == '.'){
+                return true;
+            }
         }
 
-        if(isLeft && tankBoard[row][column + 1] == '.'){
-            return true;
+        if(isLeft){
+            if(tankBoard[row][column + 1] == '.'){
+                return true;
+            }
         }
         return false;
     }

@@ -126,11 +126,12 @@ public class UserInterface {
     /**
      *  Prints the result after shooting into the field.
      * @param result Must not be null. Integer containing the number corresponding to the result of shooting.
-     * @param damageArray Must not be null. Integer array containing the damage of all active tanks.
+     * @param damageArray Could be null if the result is invalid. Integer array containing the damage of all active tanks.
      */
     public void printMoveResult(int result, List<Integer> damageArray){
         if(result == -1){
             System.out.println("Invalid target. Please enter a coordinate such as D10.");
+            return;
         }
         else if(result == 0){
             System.out.println("Miss.");

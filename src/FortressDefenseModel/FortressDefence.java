@@ -25,15 +25,17 @@ public class FortressDefence {
         while(!logic.isGameOver())
         {
             ui.printMovePrompt();
-            String userInput = ui.getUserInput();
+//            String userInput = ui.getUserInput();
 
             //input error
-            while(logic.shootCoordinate(userInput) == -1)
+            int result = logic.shootCoordinate(ui.getUserInput());
+            while(result == -1)
             {
-                System.out.println("Invalid target. Please enter a coordinate such as D10.");
-                userInput = ui.getUserInput();
+//                System.out.println("Invalid target. Please enter a coordinate such as D10.");
+                ui.printMoveResult(result, logic.getTanksDamageForUI());
+                result = logic.shootCoordinate(ui.getUserInput());
             }
-            ui.printMoveResult(logic.shootCoordinate(userInput), logic.getTanksDamageForUI());
+            ui.printMoveResult(result, logic.getTanksDamageForUI());
             logic.shootFortress();
             ui.printGameState(logic.getBoardState(), logic.getFortressHealth());
 
