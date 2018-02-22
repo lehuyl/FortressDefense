@@ -15,7 +15,7 @@ public class FortressDefence {
         int tankNum = DEFAULT_TANK_NUM;
 
         boolean isCheat = false;
-        if(args.length == 1){
+        if(args.length >= 1){
             tankNum = Integer.parseInt(args[0]);
         }
         if(args.length == 2 && args[1].trim().toLowerCase().equals("--cheat"))
